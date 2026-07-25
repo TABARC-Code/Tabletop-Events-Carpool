@@ -1,13 +1,13 @@
 <?php
 /**
  * Daily tidy-up: trashes carpool listings whose event happened a good
- * while ago. The public listings feed already excludes anything past
- * its event's date on its own (see TCAR_Rest — well, actually the
- * event date check lives at submission time; expired listings just
- * sit there quietly otherwise), so this is what stops wp-admin's
- * Carpool list slowly filling up with listings for events long over.
- * A grace period gives a poster a few days to still find and take
- * down their own listing from wp-admin before it's gone for good.
+ * while ago. Submission itself only rejects a listing against an
+ * event that's already passed — it doesn't do anything about a
+ * listing whose event happens after submission, so this is what stops
+ * wp-admin's Carpool list slowly filling up with listings for events
+ * long over. A grace period gives a poster a few days to still find
+ * and take down their own listing from wp-admin before it's gone for
+ * good.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,9 +58,17 @@ class TCAR_Cron {
 		);
 
 		foreach ( $listings as $listing_id ) {
-			$event_id = (int) get_post_meta( $listing_id, '_tcar_event_id', true );
+			$event_id   = (int) get_post_meta( $listing_id, '_tcar_event_id', true );
 			$event_date = $event_id ? get_post_meta( $event_id, '_tec_date', true ) : '';
-			if ( $event_date && $event_date < $cutoff ) {
+
+			// No event date to go on — either the event's been deleted
+			// since, or it never had one — falls back to the listing's
+			// own post date so it doesn't sit there forever uncleaned
+			// just because its anchor event disappeared.
+			$compare_date = $event_date ?: get_post_field( 'post_date', $listing_id );
+			$compare_date = substr( $compare_date, 0, 10 );
+
+			if ( $compare_date && $compare_date < $cutoff ) {
 				wp_trash_post( $listing_id );
 			}
 		}
