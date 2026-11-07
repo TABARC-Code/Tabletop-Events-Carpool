@@ -27,6 +27,8 @@ class TCAR_Post_Type {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
 		add_action( 'save_post_' . TCAR_POST_TYPE, array( $this, 'save_meta' ), 10, 2 );
+		add_filter( 'manage_' . TCAR_POST_TYPE . '_posts_columns', array( $this, 'columns' ) );
+		add_action( 'manage_' . TCAR_POST_TYPE . '_posts_custom_column', array( $this, 'column_content' ), 10, 2 );
 	}
 
 	public function register_post_type() {
@@ -53,6 +55,36 @@ class TCAR_Post_Type {
 		);
 	}
 
+	public function columns( $cols ) {
+		return array(
+			'cb'    => $cols['cb'],
+			'title' => $cols['title'],
+			'event' => __( 'Event', 'tabletop-events-carpool' ),
+			'kind'  => __( 'Type', 'tabletop-events-carpool' ),
+			'area'  => __( 'From', 'tabletop-events-carpool' ),
+			'seats' => __( 'Seats', 'tabletop-events-carpool' ),
+			'date'  => $cols['date'],
+		);
+	}
+
+	public function column_content( $col, $post_id ) {
+		switch ( $col ) {
+			case 'event':
+				$event_id = (int) get_post_meta( $post_id, '_tcar_event_id', true );
+				echo $event_id ? esc_html( get_the_title( $event_id ) ) : '—';
+				break;
+			case 'kind':
+				echo 'request' === get_post_meta( $post_id, '_tcar_type', true ) ? esc_html__( 'Wants a lift', 'tabletop-events-carpool' ) : esc_html__( 'Offers a lift', 'tabletop-events-carpool' );
+				break;
+			case 'area':
+				echo esc_html( get_post_meta( $post_id, '_tcar_area', true ) );
+				break;
+			case 'seats':
+				echo (int) get_post_meta( $post_id, '_tcar_seats', true );
+				break;
+		}
+	}
+
 	public function add_meta_box() {
 		add_meta_box(
 			'tcar_listing_meta',
@@ -74,6 +106,7 @@ class TCAR_Post_Type {
 		$area     = get_post_meta( $post->ID, '_tcar_area', true );
 		$seats    = (int) get_post_meta( $post->ID, '_tcar_seats', true ) ?: 1;
 		$notes    = get_post_meta( $post->ID, '_tcar_notes', true );
+		$when     = get_post_meta( $post->ID, '_tcar_when', true );
 		?>
 		<style>
 			.tcar-meta-row { display: flex; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -107,6 +140,12 @@ class TCAR_Post_Type {
 				<div class="tcar-meta-field">
 					<label for="tcar_seats"><?php esc_html_e( 'Seats offered / needed', 'tabletop-events-carpool' ); ?></label>
 					<input type="number" min="1" name="tcar_seats" id="tcar_seats" value="<?php echo esc_attr( $seats ); ?>">
+				</div>
+			</div>
+			<div class="tcar-meta-row">
+				<div class="tcar-meta-field">
+					<label for="tcar_when"><?php esc_html_e( 'Leaving (e.g. Sat 9am)', 'tabletop-events-carpool' ); ?></label>
+					<input type="text" name="tcar_when" id="tcar_when" value="<?php echo esc_attr( $when ); ?>">
 				</div>
 			</div>
 			<div class="tcar-meta-row">
@@ -154,6 +193,9 @@ class TCAR_Post_Type {
 		}
 		if ( isset( $_POST['tcar_seats'] ) ) {
 			update_post_meta( $post_id, '_tcar_seats', max( 1, (int) $_POST['tcar_seats'] ) );
+		}
+		if ( isset( $_POST['tcar_when'] ) ) {
+			update_post_meta( $post_id, '_tcar_when', sanitize_text_field( wp_unslash( $_POST['tcar_when'] ) ) );
 		}
 		if ( isset( $_POST['tcar_notes'] ) ) {
 			update_post_meta( $post_id, '_tcar_notes', sanitize_textarea_field( wp_unslash( $_POST['tcar_notes'] ) ) );

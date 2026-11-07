@@ -29,3 +29,8 @@
 .tcar-form-heading { margin: 0 0 4px; }
 
 .tcar-empty { padding: 24px; text-align: center; color: #888; }
+
+.tcar-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.tcar-tab { border: 1px solid #ccc; background: #fff; border-radius: 20px; padding: 4px 14px; font-size: 13px; cursor: pointer; }
+.tcar-tab.is-active { background: #2471a3; border-color: #2471a3; color: #fff; }
+.tcar-item[hidden] { display: none; }

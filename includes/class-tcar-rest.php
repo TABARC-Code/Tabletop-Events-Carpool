@@ -85,6 +85,7 @@ class TCAR_Rest {
 				'name'  => get_post_meta( $post->ID, '_tcar_name', true ),
 				'area'  => get_post_meta( $post->ID, '_tcar_area', true ),
 				'seats' => (int) get_post_meta( $post->ID, '_tcar_seats', true ),
+				'when'  => get_post_meta( $post->ID, '_tcar_when', true ),
 				'notes' => get_post_meta( $post->ID, '_tcar_notes', true ),
 			);
 		}
@@ -153,6 +154,7 @@ class TCAR_Rest {
 		update_post_meta( $listing_id, '_tcar_area', $area );
 		update_post_meta( $listing_id, '_tcar_seats', $seats );
 		update_post_meta( $listing_id, '_tcar_notes', $notes );
+		update_post_meta( $listing_id, '_tcar_when', sanitize_text_field( $params['when'] ?? '' ) );
 
 		$this->notify_admin( $listing_id, $title );
 		if ( class_exists( 'TCAR_Manage' ) ) {

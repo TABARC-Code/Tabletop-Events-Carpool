@@ -41,6 +41,7 @@
 					field( 'text', 'area', 'Departure Area / Town', listing.area ) +
 					numberField( 'seats', 'Seats Offered / Needed', listing.seats ) +
 				'</div>' +
+				field( 'text', 'when', 'Leaving (e.g. Sat 9am)', listing.when ) +
 				'<div class="tec-sf-field"><label>Notes</label><textarea name="notes" rows="3">' + escapeHtml( listing.notes || '' ) + '</textarea></div>' +
 				'<button type="submit" class="tec-sf-submit">Save Changes</button>' +
 				'<div class="tec-sf-error-banner"></div>' +
@@ -63,6 +64,7 @@
 				token: TOKEN,
 				area: val( form, 'area' ),
 				seats: val( form, 'seats' ),
+				when: val( form, 'when' ),
 				notes: val( form, 'notes' ),
 			};
 

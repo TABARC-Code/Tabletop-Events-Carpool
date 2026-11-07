@@ -4,7 +4,7 @@ Tags: events, calendar, tabletop, carpool, lift-share
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,6 +43,9 @@ No — not directly. Names shown on the board are whatever the poster typed in; 
 New listings for a past event are rejected outright. Existing listings quietly come down a week after the event's date, whether or not the poster ever comes back to remove them.
 
 == Changelog ==
+
+= 1.1.0 =
+* Added: optional "leaving" time on listings, All/Offered/Wanted tabs on the board, admin list columns.
 
 = 1.0.0 =
 * Initial release: tcar_listing CPT, event-anchored carpool board, magic-link self-service management, get-in-touch relay, daily stale-listing cleanup.

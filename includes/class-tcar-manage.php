@@ -136,6 +136,7 @@ class TCAR_Manage {
 				'area'   => get_post_meta( $post->ID, '_tcar_area', true ),
 				'seats'  => (int) get_post_meta( $post->ID, '_tcar_seats', true ),
 				'notes'  => get_post_meta( $post->ID, '_tcar_notes', true ),
+				'when'   => get_post_meta( $post->ID, '_tcar_when', true ),
 				'name'   => get_post_meta( $post->ID, '_tcar_name', true ),
 			)
 		);
@@ -153,6 +154,9 @@ class TCAR_Manage {
 		}
 		if ( isset( $params['seats'] ) ) {
 			update_post_meta( $post->ID, '_tcar_seats', max( 1, (int) $params['seats'] ) );
+		}
+		if ( isset( $params['when'] ) ) {
+			update_post_meta( $post->ID, '_tcar_when', sanitize_text_field( $params['when'] ) );
 		}
 		if ( isset( $params['notes'] ) ) {
 			update_post_meta( $post->ID, '_tcar_notes', sanitize_textarea_field( $params['notes'] ) );

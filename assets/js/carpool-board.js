@@ -33,7 +33,17 @@
 		if ( ! Array.isArray( listings ) || ! listings.length ) {
 			return '<p class="tcar-empty">No lift-share listings yet — be the first.</p>';
 		}
-		return '<div class="tcar-list">' + listings.map( card ).join( '' ) + '</div>';
+		var offers = listings.filter( function ( l ) { return 'offer' === l.type; } ).length;
+		var tabs = offers && offers < listings.length
+			? '<div class="tcar-tabs">' +
+				'<button type="button" class="tcar-tab is-active" data-tcar-type="">All (' + listings.length + ')</button>' +
+				'<button type="button" class="tcar-tab" data-tcar-type="offer">Lifts offered (' + offers + ')</button>' +
+				'<button type="button" class="tcar-tab" data-tcar-type="request">Lifts wanted (' + ( listings.length - offers ) + ')</button>' +
+			  '</div>'
+			: '';
+		return tabs + '<div class="tcar-list">' + listings.map( function ( l ) {
+			return '<div class="tcar-item" data-tcar-item-type="' + escapeAttr( l.type ) + '">' + card( l ) + '</div>';
+		} ).join( '' ) + '</div>';
 	}
 
 	function card( l ) {
@@ -44,7 +54,7 @@
 					'<span class="tcar-card-seats">' + l.seats + ( l.seats === 1 ? ' seat' : ' seats' ) + '</span>' +
 				'</div>' +
 				'<div class="tcar-card-name">' + escapeHtml( l.name ) + '</div>' +
-				'<div class="tcar-card-area">' + escapeHtml( l.area ) + '</div>' +
+				'<div class="tcar-card-area">' + escapeHtml( l.area ) + ( l.when ? ' · ' + escapeHtml( l.when ) : '' ) + '</div>' +
 				( l.notes ? '<p class="tcar-card-notes">' + escapeHtml( l.notes ) + '</p>' : '' ) +
 				'<button type="button" class="tcar-contact-btn" data-tcar-contact="' + l.id + '">Get in touch</button>' +
 				'<div class="tcar-contact-form" data-tcar-contact-form="' + l.id + '" hidden></div>' +
@@ -67,6 +77,7 @@
 					'<div class="tec-sf-field" data-field="area"><label>Departure Area / Town</label><input type="text" name="area" required><div class="tec-sf-err">This field is required</div></div>' +
 					'<div class="tec-sf-field" data-field="seats"><label>Seats Offered / Needed</label><input type="number" name="seats" min="1" value="1"></div>' +
 				'</div>' +
+				'<div class="tec-sf-field" data-field="when"><label>Leaving (e.g. Sat 9am)</label><input type="text" name="when"></div>' +
 				'<div class="tec-sf-field" data-field="notes"><label>Notes (route, timing, fuel costs)</label><textarea name="notes" rows="3"></textarea></div>' +
 				'<div class="tec-sf-honeypot"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
 				'<button type="submit" class="tec-sf-submit">Post Listing</button>' +
@@ -77,6 +88,16 @@
 	}
 
 	function bind( root, listings ) {
+		root.querySelectorAll( '[data-tcar-type]' ).forEach( function ( tab ) {
+			tab.addEventListener( 'click', function () {
+				var type = tab.getAttribute( 'data-tcar-type' );
+				root.querySelectorAll( '[data-tcar-type]' ).forEach( function ( t ) { t.classList.toggle( 'is-active', t === tab ); } );
+				root.querySelectorAll( '[data-tcar-item-type]' ).forEach( function ( it ) {
+					it.hidden = !! type && it.getAttribute( 'data-tcar-item-type' ) !== type;
+				} );
+			} );
+		} );
+
 		root.querySelectorAll( '[data-tcar-contact]' ).forEach( function ( btn ) {
 			btn.addEventListener( 'click', function () {
 				toggleContactForm( root, btn.getAttribute( 'data-tcar-contact' ) );
@@ -98,6 +119,7 @@
 				name: val( form, 'name' ),
 				email: val( form, 'email' ),
 				area: val( form, 'area' ),
+				when: val( form, 'when' ),
 				seats: val( form, 'seats' ) || 1,
 				notes: val( form, 'notes' ),
 				website: val( form, 'website' ),
